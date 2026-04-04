@@ -1,0 +1,89 @@
+/* Custom Checkout Algeria Styling */
+
+.custom-radio-group .woocommerce-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.radio-option-card {
+    display: flex;
+    align-items: center;
+    background: #f9f9f9;
+    border: 2px solid #eee;
+    padding: 15px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    gap: 12px;
+}
+
+.radio-option-card:hover {
+    border-color: #333;
+}
+
+.radio-option-card input[type="radio"] {
+    margin: 0 !important;
+    width: 20px;
+    height: 20px;
+}
+
+.radio-option-card label.radio {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer;
+    font-weight: 500;
+    pointer-events: none; /* Let the card handle clicks */
+}
+
+.radio-option-card:has(input:checked) {
+    border-color: #007cba;
+    background: #f0f7fc;
+    color: #007cba;
+}
+
+.custom-radio-group .woocommerce-input-wrapper label.radio:hover {
+    border-color: #333;
+}
+
+.custom-radio-group .woocommerce-input-wrapper input[type="radio"] {
+    margin-right: 12px;
+}
+
+.custom-radio-group .woocommerce-input-wrapper input[type="radio"]:checked + label {
+    border-color: #007cba;
+    background: #f0f7fc;
+    color: #007cba;
+}
+
+/* Ensure full width and nice spacing */
+#billing_full_name_field,
+#billing_phone_field,
+#billing_wilaya_field,
+#billing_commune_field,
+#billing_delivery_type_field {
+    margin-bottom: 20px;
+}
+
+#billing_wilaya,
+#billing_commune {
+    height: auto;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}
+
+/* Success Message styling */
+.woocommerce-thankyou-order-received {
+    font-size: 1.4em;
+    color: #2c3338;
+    background: #f0fdf4;
+    border-left: 5px solid #22c55e;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+}
