@@ -77,6 +77,34 @@
     font-size: 16px;
 }
 
+/* Hide WC native state/city if not needed */
+.cca-hidden-field { display:none !important; }
+
+/* Stop-desk radio cards (per commune) */
+.cca-stopdesk-box { padding: 12px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fafafa; margin: 12px 0; }
+.cca-stopdesk-box h4 { margin: 0 0 10px; font-size: 1rem; font-weight: 600; }
+.cca-stopdesk-list { display:flex; flex-direction:column; gap:8px; max-height:260px; overflow-y:auto; padding-right:4px; }
+.cca-delivery-option { display:flex; align-items:flex-start; gap:10px; margin:0; padding:10px 12px; border:1px solid #d1d5db; border-radius:6px; background:#fff; cursor:pointer; }
+.cca-delivery-option.is-selected, .cca-delivery-option:has(input:checked) { border-color:#007cba; box-shadow:0 0 0 1px #007cba; background:#f0f7fc; }
+.cca-delivery-option input { margin-top:3px; }
+.cca-stopdesk-empty { margin:0; padding:10px; color:#6b7280; background:#fff; border:1px dashed #d1d5db; border-radius:6px; }
+.cca-stopdesk-card .cca-delivery-option__label { font-size:0.95em; font-weight:600; }
+
+/* Wizard */
+.cca-wizard-wrap { max-width:720px; margin:40px auto; }
+.cca-wizard { background:#fff; border:1px solid #dcdcde; border-radius:8px; box-shadow:0 1px 3px rgba(0,0,0,0.04); overflow:hidden; }
+.cca-wizard__header { padding:28px 32px 16px; border-bottom:1px solid #f0f0f1; background:linear-gradient(180deg,#f8fafc 0%, #fff 100%); }
+.cca-wizard__steps { display:flex; gap:8px; list-style:none; margin:0; padding:0; flex-wrap:wrap; }
+.cca-wizard__steps li { font-size:12px; padding:6px 10px; border-radius:999px; background:#f0f0f1; color:#646970; }
+.cca-wizard__steps li.is-active { background:#007cba; color:#fff; }
+.cca-wizard__steps li.is-done { background:#dbeafe; color:#1e40af; }
+.cca-wizard__body { padding:28px 32px 32px; }
+.cca-wizard__panel { display:none; }
+.cca-wizard__panel.is-active { display:block; }
+.cca-wizard__feedback { min-height:1.2em; margin:8px 0 16px; }
+.cca-wizard__feedback.is-error { color:#b32d2e; }
+.cca-wizard__feedback.is-ok { color:#007017; }
+
 /* Success Message styling */
 .woocommerce-thankyou-order-received {
     font-size: 1.4em;

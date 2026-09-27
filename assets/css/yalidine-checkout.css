@@ -1,0 +1,193 @@
+/* Hide unused WC fields */
+.yalidine-hidden-field,
+.yalidine-native-city-hidden,
+#billing_city_field,
+#shipping_city_field,
+#billing_country_field,
+#shipping_country_field,
+#billing_address_1_field,
+#billing_address_2_field,
+#billing_postcode_field,
+#billing_company_field,
+#billing_last_name_field,
+#ship-to-different-address,
+.woocommerce-shipping-fields {
+	display: none !important;
+}
+
+/*
+ * Force exact visual order (beats theme + address-i18n reordering):
+ * 1 Nom complet → 2 Région → 3 Commune → 4 Téléphone → 5 Email
+ */
+.woocommerce-billing-fields__field-wrapper {
+	display: flex !important;
+	flex-direction: column !important;
+}
+
+.woocommerce-billing-fields__field-wrapper > #billing_first_name_field { order: 1 !important; }
+.woocommerce-billing-fields__field-wrapper > #billing_state_field { order: 2 !important; }
+.woocommerce-billing-fields__field-wrapper > #billing_yalidine_commune_field { order: 3 !important; }
+.woocommerce-billing-fields__field-wrapper > #billing_phone_field { order: 4 !important; }
+.woocommerce-billing-fields__field-wrapper > #billing_email_field { order: 5 !important; }
+.woocommerce-billing-fields__field-wrapper > .form-row { order: 50; width: 100% !important; float: none !important; }
+
+/* Force commune visible + label above the field */
+#billing_yalidine_commune_field,
+#shipping_yalidine_commune_field,
+.yalidine-commune-field {
+	display: flex !important;
+	flex-direction: column !important;
+	align-items: stretch !important;
+	visibility: visible !important;
+	width: 100% !important;
+	float: none !important;
+	clear: both !important;
+}
+
+#billing_yalidine_commune_field > label,
+#shipping_yalidine_commune_field > label,
+.yalidine-commune-field > label {
+	display: block !important;
+	width: 100% !important;
+	float: none !important;
+	margin: 0 0 1rem !important;
+	padding-left: 2px;
+	line-height: 1.2;
+}
+
+#billing_yalidine_commune_field .woocommerce-input-wrapper,
+#shipping_yalidine_commune_field .woocommerce-input-wrapper,
+.yalidine-commune-field .woocommerce-input-wrapper {
+	display: block !important;
+	width: 100% !important;
+	float: none !important;
+}
+
+#billing_yalidine_commune_field select,
+#shipping_yalidine_commune_field select,
+.yalidine-commune-field select,
+#billing_yalidine_commune_field .select2-container,
+#shipping_yalidine_commune_field .select2-container,
+.yalidine-commune-field .select2-container,
+.yalidine-select {
+	display: block !important;
+	width: 100% !important;
+	max-width: 100% !important;
+	float: none !important;
+}
+
+#billing_first_name_field,
+#billing_state_field,
+#billing_phone_field,
+#billing_email_field {
+	width: 100% !important;
+	float: none !important;
+	clear: both !important;
+}
+
+/* Order notes visible after fields */
+.woocommerce-additional-fields {
+	display: block !important;
+	margin-top: 1rem;
+}
+
+/* Delivery box: directly above payment section */
+.woocommerce-checkout-review-order .yalidine-checkout--review {
+	margin: 1.25rem 0;
+}
+
+.woocommerce-checkout-payment {
+	margin-top: 0;
+}
+
+.yalidine-delivery-box {
+	padding: 1rem 1.1rem;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	background: #fafafa;
+}
+
+.yalidine-delivery-box__title {
+	margin: 0 0 0.85rem;
+	font-size: 1rem;
+	font-weight: 600;
+}
+
+.yalidine-delivery-options {
+	display: flex;
+	flex-direction: column;
+	gap: 0.65rem;
+}
+
+.yalidine-delivery-option {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	margin: 0;
+	padding: 0.75rem 0.85rem;
+	border: 1px solid #d1d5db;
+	border-radius: 6px;
+	background: #fff;
+	cursor: pointer;
+	font-weight: normal;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.yalidine-delivery-option:has(input:checked),
+.yalidine-delivery-option.is-selected {
+	border-color: #1d4ed8;
+	box-shadow: 0 0 0 1px #1d4ed8;
+	background: #f8fafc;
+}
+
+.yalidine-delivery-option input {
+	margin-top: 0.2rem;
+	flex-shrink: 0;
+}
+
+.yalidine-delivery-option__body {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+}
+
+.yalidine-delivery-option__label {
+	font-weight: 600;
+	line-height: 1.3;
+}
+
+.yalidine-delivery-option__hint {
+	font-size: 0.85em;
+	color: #6b7280;
+	line-height: 1.3;
+}
+
+#yalidine_stopdesk_field {
+	margin: 0.85rem 0 0;
+	padding-top: 0.85rem;
+	border-top: 1px solid #e5e7eb;
+}
+
+#yalidine_stopdesk_field .yalidine-delivery-box__title {
+	margin-bottom: 0.75rem;
+}
+
+.yalidine-stopdesk-options {
+	max-height: 260px;
+	overflow-y: auto;
+	padding-right: 2px;
+}
+
+.yalidine-stopdesk-empty {
+	margin: 0;
+	padding: 0.75rem 0.85rem;
+	color: #6b7280;
+	font-size: 0.9em;
+	background: #fff;
+	border: 1px dashed #d1d5db;
+	border-radius: 6px;
+}
+
+.yalidine-stopdesk-card .yalidine-delivery-option__label {
+	font-size: 0.95em;
+}

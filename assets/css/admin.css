@@ -1,0 +1,121 @@
+.yalidine-wizard-wrap {
+	max-width: 720px;
+	margin: 40px auto;
+}
+
+.yalidine-wizard {
+	background: #fff;
+	border: 1px solid #dcdcde;
+	border-radius: 8px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+	overflow: hidden;
+}
+
+.yalidine-wizard__header {
+	padding: 28px 32px 16px;
+	border-bottom: 1px solid #f0f0f1;
+	background: linear-gradient(180deg, #f8fafc 0%, #fff 100%);
+}
+
+.yalidine-wizard__header h1 {
+	margin: 0 0 8px;
+	font-size: 24px;
+}
+
+.yalidine-wizard__header > p {
+	margin: 0 0 20px;
+	color: #646970;
+}
+
+.yalidine-wizard__steps {
+	display: flex;
+	gap: 8px;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	flex-wrap: wrap;
+}
+
+.yalidine-wizard__steps li {
+	font-size: 12px;
+	padding: 6px 10px;
+	border-radius: 999px;
+	background: #f0f0f1;
+	color: #646970;
+}
+
+.yalidine-wizard__steps li.is-active {
+	background: #1d4ed8;
+	color: #fff;
+}
+
+.yalidine-wizard__steps li.is-done {
+	background: #dbeafe;
+	color: #1e40af;
+}
+
+.yalidine-wizard__body {
+	padding: 28px 32px 32px;
+}
+
+.yalidine-wizard__panel {
+	display: none;
+}
+
+.yalidine-wizard__panel.is-active {
+	display: block;
+}
+
+.yalidine-field label {
+	display: block;
+	font-weight: 600;
+	margin-bottom: 6px;
+}
+
+.yalidine-field input[type="text"],
+.yalidine-field input[type="password"],
+.yalidine-field input[type="number"],
+.yalidine-field select {
+	width: 100%;
+	max-width: 420px;
+}
+
+.yalidine-check {
+	display: block;
+	margin: 8px 0;
+}
+
+.yalidine-dims {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+	margin-top: 12px;
+}
+
+.yalidine-wizard__feedback {
+	min-height: 1.2em;
+	margin: 8px 0 16px;
+}
+
+.yalidine-wizard__feedback.is-error {
+	color: #b32d2e;
+}
+
+.yalidine-wizard__feedback.is-ok {
+	color: #007017;
+}
+
+.yalidine-order-actions .yalidine-muted {
+	color: #a7aaad;
+}
+
+.yalidine-order-actions .yalidine-msg {
+	margin: 8px 0 0;
+	padding: 6px 8px;
+}
+
+.yalidine-order-shipping-meta {
+	margin-top: 12px;
+	padding-top: 8px;
+	border-top: 1px solid #eee;
+}
