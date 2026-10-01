@@ -424,23 +424,41 @@ class CCA_Checkout {
     public function add_fee( $cart ) {
         if ( is_admin() && ! defined('DOING_AJAX') ) return;
         if ( ! $cart instanceof WC_Cart ) return;
-        // Only if configured – but still allow fee 0 if not configured to avoid notices
+
+        // Only add the delivery fee on checkout. The WC session persists across
+        // the site, so leaving checkout without clearing it would leak the fee
+        // to the sidebar cart and other pages.
+        if ( ! function_exists( 'is_checkout' ) || ! is_checkout() ) {
+            return;
+        }
+        if ( function_exists( 'is_order_received_page' ) && is_order_received_page() ) {
+            return;
+        }
+
         $fee = 0.0;
         if ( WC()->session ) {
             $sf = WC()->session->get('cca_fee');
-            if ( null !== $sf && '' !== $sf ) $fee = (float)$sf;
+            if ( null !== $sf && '' !== $sf ) {
+                $fee = (float) $sf;
+            }
         }
         if ( $fee <= 0 ) return;
         // Avoid double count if shipping already covers
         $ship = (float) $cart->get_shipping_total();
         if ( $ship >= $fee - 0.01 && $ship > 0 ) return;
         $delivery = WC()->session ? WC()->session->get('cca_delivery_type') : 'home';
-        $label = ($delivery==='stopdesk') ? __( 'Livraison (Stop desk)', 'custom-checkout-algeria' ) : __( 'Livraison à domicile', 'custom-checkout-algeria' );
-        $cart->add_fee($label,$fee,false);
+        $label = ($delivery === 'stopdesk') ? __( 'Livraison (Stop desk)', 'custom-checkout-algeria' ) : __( 'Livraison à domicile', 'custom-checkout-algeria' );
+        $cart->add_fee( $label, $fee, false );
     }
 
     public function bust_shipping_cache( $packages ) {
-        if ( ! is_array($packages) ) return $packages;
+        if ( ! is_array( $packages ) ) return $packages;
+        if ( ! function_exists( 'is_checkout' ) || ! is_checkout() ) {
+            return $packages;
+        }
+        if ( function_exists( 'is_order_received_page' ) && is_order_received_page() ) {
+            return $packages;
+        }
         $fee = WC()->session ? WC()->session->get('cca_fee') : 0;
         $delivery = WC()->session ? WC()->session->get('cca_delivery_type') : '';
         foreach($packages as $i=>$p){ $packages[$i]['cca_fee']=$fee; $packages[$i]['cca_delivery']=$delivery; }
