@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 11.1
-Stable tag: 1.2.0
+Stable tag: 1.2.1
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +76,16 @@ incompatible on purpose.
 
 == Changelog ==
 
+= 1.2.1 =
+
+*   The readme is now shown on the Plugins screen. WordPress only renders readme.txt for
+    plugins installed from the WordPress.org directory, so a zip-installed copy had no
+    documentation. Use *Plugins -> Readme*, or the GitHub, Releases and Changelog links
+    next to the plugin row.
+*   Settings and Readme shortcuts next to Activate / Deactivate.
+*   Updated the GitHub README, which still described the plugin before the Yalidine
+    integration.
+
 = 1.2.0 =
 
 *   Checkout selection is restored after a refresh.
@@ -90,6 +100,9 @@ incompatible on purpose.
 *   Cache purge now clears object-cache entries as well as database rows.
 
 == Upgrade Notice ==
+
+= 1.2.1 =
+Documentation is now reachable from the Plugins screen.
 
 = 1.2.0 =
 Delivery fees are no longer added to the cart; they appear at checkout only.

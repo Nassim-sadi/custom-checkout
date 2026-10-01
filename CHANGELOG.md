@@ -5,6 +5,28 @@ All notable changes to Custom Checkout Algeria are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.1] - 2026-10-01
+
+### Added
+- Readme viewer on the Plugins screen. WordPress only surfaces `readme.txt` for
+  plugins installed from the WordPress.org directory, so a self-hosted or zip-installed
+  copy showed no documentation at all. `CCA_Admin_Links` now renders the bundled
+  `readme.txt` at *Plugins → Readme*.
+- `plugin_row_meta` links on the Plugins screen: GitHub, Releases, Changelog and Readme
+  (with the current version). Scoped by `plugin_basename()` so other plugins are untouched.
+- `plugin_action_links` shortcuts for *Settings*, *Readme*, and *Setup* — the latter
+  appears only while the plugin is unconfigured. All gated on `manage_woocommerce`.
+- Rewrote `README.md` for GitHub: it documented the pre-Yalidine plugin and described a
+  project structure that no longer matched the code.
+
+### Fixed
+- `readme.txt` parsing in the new viewer: wrapped list items were split into stray
+  paragraphs, `= 1.2.0 =` sub-headings were ignored, and the short description was
+  misread as a header field.
+- Double-escaped `&middot;` in the readme page version line.
+- Markdown links in `readme.txt` are now restricted to `http`, `https` and `mailto`, so
+  a `javascript:` or `ftp:` target is left as literal text instead of becoming a link.
+
 ## [1.2.0] - 2026-10-01
 
 ### Added
@@ -70,6 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Initial release: simplified checkout fields, wilaya/commune selection, Algerian
   phone validation, delivery type selection and admin order integration.
 
+[1.2.1]: https://github.com/Nassim-sadi/custom-checkout/releases/tag/v1.2.1
 [1.2.0]: https://github.com/Nassim-sadi/custom-checkout/releases/tag/v1.2.0
 [1.1.0]: https://github.com/Nassim-sadi/custom-checkout/releases/tag/v1.1.0
 [1.0.0]: https://github.com/Nassim-sadi/custom-checkout/releases/tag/v1.0.0

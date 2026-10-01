@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Custom Checkout Algeria
  * Description: Simplified WooCommerce checkout with Wilaya/Commune selection, Yalidine live fees (express), Stop-Desk centres per commune, and setup wizard.
- * Version: 1.2.0
+ * Version: 1.2.1
  * Author: Nassim Studio
  * Author URI: https://nassimstudio.com
  * Text Domain: custom-checkout-algeria
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'CCA_VERSION', '1.2.0' );
+define( 'CCA_VERSION', '1.2.1' );
 define( 'CCA_FILE', __FILE__ );
 define( 'CCA_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CCA_URL', plugin_dir_url( __FILE__ ) );
@@ -30,6 +30,7 @@ require_once CCA_PATH . 'includes/class-cca-settings.php';
 require_once CCA_PATH . 'includes/class-cca-setup-wizard.php';
 require_once CCA_PATH . 'includes/class-cca-checkout.php';
 require_once CCA_PATH . 'includes/class-cca-orders.php';
+require_once CCA_PATH . 'includes/class-cca-admin-links.php';
 
 register_activation_hook( CCA_FILE, 'cca_activate' );
 function cca_activate() {

@@ -186,3 +186,53 @@
 .cca-credit {
 	color: #646970;
 }
+
+/* Readme viewer (Plugins screen -> Readme) */
+.cca-readme-wrap .cca-readme-meta {
+	color: #646970;
+	margin: 4px 0 12px;
+}
+
+.cca-readme-wrap .cca-readme-actions {
+	margin: 0 0 16px;
+}
+
+.cca-readme-wrap .cca-readme-actions .button {
+	margin-right: 6px;
+}
+
+.cca-readme-wrap .cca-readme-body {
+	max-width: 900px;
+	padding: 8px 24px 20px;
+	line-height: 1.7;
+}
+
+.cca-readme-wrap .cca-readme-body h2 {
+	margin-top: 28px;
+	padding-bottom: 6px;
+	border-bottom: 1px solid #eee;
+}
+
+.cca-readme-wrap .cca-readme-body h3 {
+	margin-top: 20px;
+}
+
+.cca-readme-wrap .cca-readme-body ul,
+.cca-readme-wrap .cca-readme-body ol {
+	margin: 0 0 16px 20px;
+	list-style: disc;
+}
+
+.cca-readme-wrap .cca-readme-body ol {
+	list-style: decimal;
+}
+
+.cca-readme-wrap .cca-readme-body li {
+	margin-bottom: 6px;
+}
+
+.cca-readme-wrap .cca-readme-body code {
+	padding: 1px 5px;
+	background: #f0f0f1;
+	border-radius: 3px;
+}
