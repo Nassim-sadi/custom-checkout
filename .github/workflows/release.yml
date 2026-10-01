@@ -37,13 +37,18 @@ jobs:
           # The folder name must match the installed plugin folder so a zip
           # install does not create a second copy next to an existing one.
           DIR="custom-checkout-algeria"
-          mkdir -p "$DIR"
-          rsync -av \
+          # Stage OUTSIDE the checkout. Creating $DIR inside the source tree and
+          # then rsyncing ./ into it copies the folder into itself, which shipped
+          # a nested custom-checkout-algeria/custom-checkout-algeria/ duplicate in
+          # v1.2.0 and v1.2.1.
+          STAGE="$(mktemp -d)"
+          rsync -a \
             --exclude='.git' --exclude='.gitignore' --exclude='.gitattributes' \
             --exclude='.github' --exclude='.agents' --exclude='docs' \
+            --exclude='release-notes.md' --exclude='*.zip' \
             --exclude='*.log' --exclude='node_modules' \
-            ./ "$DIR/"
-          zip -r "${DIR}.zip" "$DIR/"
+            ./ "$STAGE/$DIR/"
+          ( cd "$STAGE" && zip -r9 "$GITHUB_WORKSPACE/${DIR}.zip" "$DIR" )
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
