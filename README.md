@@ -67,7 +67,8 @@ The plugin hooks `woocommerce_checkout_fields` to strip the default address fiel
 `wilaya`, `commune` and the delivery radios. JavaScript then:
 
 1. Resolves the selected wilaya, and fetches **all** its stop desks in one request.
-2. Caches the result for an hour and filters the desk list client-side as the customer types.
+2. Caches the result for an hour and resolves the desk list client-side (see
+   [Stop desk resolution](#stop-desk-resolution)).
 3. Posts the selection to WooCommerce's AJAX endpoint to resolve the live delivery fee.
 
 Fees are resolved server-side in `CCA_API::get_price_for_commune()`. Billable weight is
@@ -76,6 +77,39 @@ and an oversize surcharge is applied to every kilogram above **5 kg**.
 
 `add_fee()` is guarded by `is_checkout()` so the charge never leaks into the cart or the order
 received page, while still surviving WooCommerce's checkout AJAX refreshes.
+
+## Stop desk resolution
+
+Yalidine assigns each desk to the commune it is **physically located in**, which is not necessarily
+the commune the customer lives in. Concretely, in Batna the desk *"Agence du CHU Route de Tazoult"*
+is registered under commune **Batna (501)**, and Tazoult (508) has no desk at all. Selecting
+Tazoult therefore finds nothing, even though a desk carrying the name "Tazoult" is one click away.
+
+The desk list is only rendered once a commune is chosen. `assets/js/cca-desks.js` then resolves it
+from the single wilaya-wide payload — no extra API call:
+
+| Offered set | Count | Result |
+| --- | --- | --- |
+| Desks with `commune_id === C` | 1 | Auto-selected, shown as a confirmed card |
+| same | more than 1 | The customer picks from the commune's desks |
+| none, but the wilaya has desks | any | *"Pas de stop desk dans votre commune…"* plus every desk in the wilaya, each badged with its own commune |
+| none at all | 0 | *"Aucun stop desk dans cette wilaya"*, nothing to pick |
+
+Selection precedence is: a desk restored from the WooCommerce session **if it is still on offer**,
+otherwise the single offered desk, otherwise nothing — and `validate_fields()` then blocks
+submission until the customer chooses.
+
+Two properties keep this safe. Fees are priced from the **customer's** commune
+(`CCA_API::get_price_for_commune()`), so the desk choice never changes the amount. Parcel creation
+already re-resolves the chosen centre and sends the **desk's** commune
+(`CCA_Orders::create_parcels()`), so cross-commune desks were always supported.
+
+A desk whose payload carries no `commune_id` is never counted as being in the customer's commune,
+which also fixes an older bug where a `by_commune: false` payload skipped filtering entirely and
+displayed every desk in the wilaya as though it were local.
+
+`node tests/desk-plan.test.js` (or `npm test`) covers the partitioning and selection precedence
+against the real Batna fixture.
 
 ## Frequently asked
 
@@ -92,8 +126,10 @@ No — by design. The plugin declares `cart_checkout_blocks` incompatible and re
 checkout.
 
 **A commune has no stop desk.**
-The plugin shows an explicit *"no stop desk in this commune"* message and refuses to submit rather
-than silently picking the first desk.
+Yalidine files each desk under the commune it physically sits in, so plenty of communes have none.
+Instead of dead-ending, the plugin falls back to every desk in the wilaya and badges each one with
+its real commune, so a desk you actually want stays reachable. See
+[Stop desk resolution](#stop-desk-resolution).
 
 ## Project structure
 
@@ -106,9 +142,11 @@ includes/
   class-cca-settings.php       Settings storage, admin page, cache purge
   class-cca-setup-wizard.php   Guided setup
   class-cca-admin-links.php    Plugins-screen links and the readme viewer
-assets/js/checkout.js          Wilaya/commune/desk logic, caching, fee refresh
+assets/js/checkout.js          Wilaya/commune/desk rendering, caching, fee refresh
+assets/js/cca-desks.js         Pure stop desk resolution (commune / fallback / selection)
 assets/js/cities-data.js       Bundled wilaya + commune fallback dataset
 templates/                     Admin templates
+tests/desk-plan.test.js        Unit tests for cca-desks.js (`npm test`, no dependencies)
 ```
 
 ## Changelog

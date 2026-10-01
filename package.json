@@ -1,0 +1,9 @@
+{
+  "name": "custom-checkout-algeria",
+  "version": "1.2.2",
+  "private": true,
+  "description": "Tests for Custom Checkout Algeria. The plugin itself ships no npm dependencies.",
+  "scripts": {
+    "test": "node tests/desk-plan.test.js"
+  }
+}

@@ -8,7 +8,7 @@
   var state = {
     wilayasPopulated: false,
     restoring: false,
-    centersFor: {},        // wilayaId -> { centers: [], by_commune: bool }
+    centersFor: {},        // wilayaId -> { centers: [] }
     lastFeeKey: '',
     feeTimer: null,
     updating: false,
@@ -213,13 +213,14 @@
     $stopdeskBox().hide();
   }
 
-  function renderCenters(centers, communeId){
+  function renderCenters(centers, opts){
+    opts = opts || {};
     var $list = $('#cca_stopdesk_list');
     $list.empty();
     if(!centers || !centers.length){
       $list.html(
         '<p class="cca-stopdesk-empty">' + (cfg.i18n.noCenterInCommune || 'Aucun stop desk dans cette commune.') + '</p>' +
-        (cfg.enableHome ? '<p class="cca-stopdesk-hint">Choisissez la livraison à domicile.</p>' : '')
+        (cfg.enableHome ? '<p class="cca-stopdesk-hint">' + (cfg.i18n.useHome || 'Choisissez la livraison à domicile.') + '</p>' : '')
       );
       setStopdeskValue('', '');
       return;
@@ -227,7 +228,9 @@
     centers.forEach(function(c){
       var meta = [];
       if(c.address) meta.push(c.address);
-      if(c.commune_name) meta.push(c.commune_name);
+      // In fallback mode the badge carries the commune, so don't repeat it in the
+      // meta line. Otherwise the meta stays as before.
+      if(!opts.showCommune && c.commune_name) meta.push(c.commune_name);
       var $card = $('<label/>', { 'class': 'cca-delivery-option cca-stopdesk-card' });
       $card.append($('<input/>', {
         type: 'radio',
@@ -237,7 +240,11 @@
         'data-commune': c.commune_id || ''
       }));
       var $body = $('<span/>', { 'class': 'cca-delivery-option__body' });
-      $body.append($('<span/>', { 'class': 'cca-delivery-option__label', text: c.name }));
+      var $label = $('<span/>', { 'class': 'cca-delivery-option__label', text: c.name });
+      if(opts.showCommune && c.commune_name){
+        $label.append($('<span/>', { 'class': 'cca-stopdesk-badge', text: c.commune_name }));
+      }
+      $body.append($label);
       if(meta.length){
         $body.append($('<span/>', { 'class': 'cca-delivery-option__meta', text: meta.join(' · ') }));
       }
@@ -245,7 +252,7 @@
       $list.append($card);
     });
 
-    // No auto-select: the customer must choose a desk (validate_fields enforces it).
+    // Selection is applied by the caller (see applyPlanSelection).
     setStopdeskValue('', '');
   }
 
@@ -272,7 +279,7 @@
 
     state.xhr.centers = api('cca_get_centers', { wilaya_id: wid, commune_id: cid })
       .done(function(res){
-        var payload = (res.success && res.data) ? { centers: res.data.centers || [], by_commune: !!res.data.by_commune } : null;
+        var payload = (res.success && res.data) ? { centers: res.data.centers || [] } : null;
         if(payload){
           state.centersFor[wid] = payload;
           cacheSet('centers:' + wid, payload);
@@ -286,25 +293,54 @@
       .always(function(){ state.xhr.centers = null; });
   }
 
-  // Filter the wilaya-wide centre list down to the chosen commune.
+  /**
+   * Resolve which desks the customer may pick for the chosen commune, render
+   * them, then apply the selection.
+   *
+   * The partitioning lives in assets/js/cca-desks.js so it is unit testable
+   * without a DOM; this only paints what that returns.
+   */
   function paintCenters(payload, communeId){
     var $list = $('#cca_stopdesk_list');
     if(!payload){ $list.empty(); setStopdeskValue('', ''); return; }
-    var centers = payload.centers || [];
-    if(payload.by_commune && communeId){
-      centers = centers.filter(function(c){
-        return parseInt(c.commune_id, 10) === parseInt(communeId, 10);
-      });
-    }
-    renderCenters(centers, communeId);
 
-    // Re-select the desk the customer had chosen before the refresh.
-    var want = (cfg.restore && cfg.restore.stopdesk_id) ? parseInt(cfg.restore.stopdesk_id, 10) : 0;
-    if(want && $list.find('input[value="'+want+'"]').length){
-      var $inp = $list.find('input[value="'+want+'"]');
-      $inp.prop('checked', true);
-      setStopdeskValue(want, $inp.data('name') || '');
+    var plan = ccaPlanDesks.planDesks(
+      payload.centers || [],
+      communeId,
+      cfg.restore && cfg.restore.stopdesk_id
+    );
+
+    if(plan.mode === 'wilaya-empty'){
+      $list.empty();
+      $list.html(
+        '<p class="cca-stopdesk-empty">' + (cfg.i18n.noCenterInWilaya || 'Aucun stop desk dans cette wilaya.') + '</p>' +
+        (cfg.enableHome ? '<p class="cca-stopdesk-hint">' + (cfg.i18n.useHome || 'Choisissez la livraison à domicile.') + '</p>' : '')
+      );
+      setStopdeskValue('', '');
+      return;
     }
+
+    renderCenters(plan.offered, { showCommune: plan.mode === 'fallback' });
+
+    if(plan.mode === 'fallback'){
+      $list.prepend($('<p/>', {
+        'class': 'cca-stopdesk-note',
+        text: cfg.i18n.notInYourCommune || 'Pas de stop desk dans votre commune. Choisissez parmi les bureaux de la wilaya :'
+      }));
+    }
+
+    applyPlanSelection(plan);
+  }
+
+  // A desk restored from the session wins, otherwise the single offered desk is
+  // taken. With more than one on offer nothing is preselected and the customer
+  // must choose (validate_fields blocks submission until they do).
+  function applyPlanSelection(plan){
+    if(!plan.selected) return;
+    var $inp = $('#cca_stopdesk_list').find('input[value="'+plan.selected+'"]');
+    if(!$inp.length) return;
+    $inp.prop('checked', true);
+    setStopdeskValue(plan.selected, $inp.data('name') || plan.selectedName || '');
   }
 
   // Warm the centre cache as soon as a wilaya is picked, so toggling to
@@ -317,7 +353,7 @@
     api('cca_get_centers', { wilaya_id: wilayaId, commune_id: 0 })
       .done(function(res){
         if(res.success && res.data){
-          var payload = { centers: res.data.centers || [], by_commune: !!res.data.by_commune };
+          var payload = { centers: res.data.centers || [] };
           state.centersFor[wilayaId] = payload;
           cacheSet('centers:' + wilayaId, payload);
           // If the customer switched to desk while we were fetching, paint now.

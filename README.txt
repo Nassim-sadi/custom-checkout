@@ -6,7 +6,7 @@ Tested up to: 7.0
 Requires PHP: 7.4
 WC requires at least: 5.0
 WC tested up to: 11.1
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -76,6 +76,19 @@ incompatible on purpose.
 
 == Changelog ==
 
+= 1.2.2 =
+
+*   Yalidine files a desk under the commune it physically sits in, so many communes have
+    none. A commune with no desk now falls back to the desks of its wilaya instead of
+    stopping the customer, and each offered desk is badged with its real commune. In
+    Batna, for example, "Agence du CHU Route de Tazoult" belongs to Batna, not Tazoult.
+*   A commune with exactly one desk now selects it automatically, so there is nothing
+    left to choose.
+*   A stop desk remembered from a previous visit is restored only while it is still
+    offered; a stale choice from before a wilaya or commune change is discarded.
+*   Desks with no commune attached are no longer treated as being in the selected
+    commune, which could previously show every desk in the wilaya as though it were local.
+
 = 1.2.1 =
 
 *   The readme is now shown on the Plugins screen. WordPress only renders readme.txt for
@@ -100,6 +113,9 @@ incompatible on purpose.
 *   Cache purge now clears object-cache entries as well as database rows.
 
 == Upgrade Notice ==
+
+= 1.2.2 =
+Communes without a stop desk now offer the wilaya's desks instead of blocking checkout.
 
 = 1.2.1 =
 Documentation is now reachable from the Plugins screen.

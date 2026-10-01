@@ -124,7 +124,8 @@ class CCA_Checkout {
         wp_enqueue_style( 'custom-checkout-style', CCA_URL . 'assets/css/checkout.css', array(), CCA_VERSION );
         // keep cities-data.js as fallback when API not configured
         wp_enqueue_script( 'cities-data', CCA_URL . 'assets/js/cities-data.js', array(), CCA_VERSION, true );
-        wp_enqueue_script( 'custom-checkout-script', CCA_URL . 'assets/js/checkout.js', array('jquery','wc-checkout'), CCA_VERSION, true );
+        wp_enqueue_script( 'cca-desks', CCA_URL . 'assets/js/cca-desks.js', array(), CCA_VERSION, true );
+        wp_enqueue_script( 'custom-checkout-script', CCA_URL . 'assets/js/checkout.js', array('jquery','wc-checkout','cca-desks'), CCA_VERSION, true );
 
         $settings = CCA_Settings::all();
         // Build wilayas list if credentials present – use cached transient only, avoid live API on every page load.
@@ -160,6 +161,12 @@ class CCA_Checkout {
                 'selectCommune' => 'Sélectionnez une commune',
                 'selectCenter'  => 'Sélectionnez un stop desk',
                 'noCenterInCommune' => 'Aucun stop desk dans cette commune.',
+                // No desk anywhere in the wilaya, as opposed to none in this commune.
+                'noCenterInWilaya'   => 'Aucun stop desk dans cette wilaya.',
+                // Shown when the commune has no desk but the wilaya does; the
+                // desks offered below are then badged with their own commune.
+                'notInYourCommune'   => 'Pas de stop desk dans votre commune. Choisissez parmi les bureaux de la wilaya :',
+                'useHome'      => 'Choisissez la livraison à domicile.',
                 'loading'       => 'Chargement…',
                 'feeError'      => 'Impossible de calculer les frais.',
                 'home'          => 'Livraison à domicile',

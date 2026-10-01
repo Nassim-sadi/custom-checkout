@@ -5,6 +5,30 @@ All notable changes to Custom Checkout Algeria are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.2] - 2026-10-01
+
+### Added
+- Stop desk resolution extracted into `assets/js/cca-desks.js`, a dependency-free pure module, with
+  `tests/desk-plan.test.js` covering the partitioning and selection precedence against the real
+  Batna fixture. Run with `node tests/desk-plan.test.js` or `npm test`; no npm dependencies.
+- When a commune has no desk but its wilaya does, the plugin now offers the wilaya's desks
+  instead of dead-ending, each badged with the commune it actually sits in.
+- New `assets/js/cca-desks.js` enqueued ahead of `checkout.js`; new i18n strings
+  `noCenterInWilaya`, `notInYourCommune` and `useHome`.
+
+### Changed
+- A commune with exactly one desk now auto-selects it, so there is nothing left to choose. The same
+  rule applies to the wilaya fallback, so a single-desk wilaya behaves consistently either way.
+  With more than one desk on offer nothing is preselected and `validate_fields()` still blocks
+  submission until the customer picks.
+- A desk restored from the WooCommerce session is honoured only while it remains on offer; a stale
+  `stopdesk_id` from before a wilaya or commune change is now discarded instead of being kept.
+
+### Fixed
+- A desk whose payload carries no `commune_id` is no longer counted as belonging to the customer's
+  commune. Previously a `by_commune: false` payload skipped filtering altogether and displayed every
+  desk in the wilaya as though it were in the selected commune.
+
 ## [1.2.1] - 2026-10-01
 
 ### Added
