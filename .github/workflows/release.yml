@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate release notes
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          # index() is a literal substring match, so the bracketed heading
+          # "[1.2.0]" is not interpreted as a regex character class. Matching
+          # must also not be gated on /^## /, or the body lines never print.
+          awk -v ver="[${VERSION}]" '
+            /^## / {
+              if (index($0, ver)) { found = 1; print; next }
+              if (found) { exit }
+            }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "::error::No CHANGELOG.md section found for ${VERSION}"
+            exit 1
+          fi
+
+      - name: Build plugin zip
+        run: |
+          # The folder name must match the installed plugin folder so a zip
+          # install does not create a second copy next to an existing one.
+          DIR="custom-checkout-algeria"
+          mkdir -p "$DIR"
+          rsync -av \
+            --exclude='.git' --exclude='.gitignore' --exclude='.gitattributes' \
+            --exclude='.github' --exclude='.agents' --exclude='docs' \
+            --exclude='*.log' --exclude='node_modules' \
+            ./ "$DIR/"
+          zip -r "${DIR}.zip" "$DIR/"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: release-notes.md
+          name: ${{ github.ref_name }}
+          files: custom-checkout-algeria.zip
