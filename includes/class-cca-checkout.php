@@ -152,10 +152,14 @@ class CCA_Checkout {
             'wilayas'        => $wilayas,
             'enableHome'     => $settings['enable_home']==='1',
             'enableStopdesk' => $settings['enable_stopdesk']==='1',
+            // Lets the JS restore the customer's selection after a refresh,
+            // so nobody has to re-pick wilaya → commune → stop desk.
+            'restore'        => self::session_state(),
             'i18n'           => array(
                 'selectWilaya'  => 'Sélectionnez une wilaya',
                 'selectCommune' => 'Sélectionnez une commune',
                 'selectCenter'  => 'Sélectionnez un stop desk',
+                'noCenterInCommune' => 'Aucun stop desk dans cette commune.',
                 'loading'       => 'Chargement…',
                 'feeError'      => 'Impossible de calculer les frais.',
                 'home'          => 'Livraison à domicile',
@@ -295,6 +299,36 @@ class CCA_Checkout {
         }
     }
 
+    /**
+     * Snapshot of the delivery selection stored in the WC session.
+     * Handed to the frontend so a page refresh restores what was chosen.
+     */
+    public static function session_state() {
+        $s = WC()->session;
+        if ( ! $s ) {
+            return array(
+                'wilaya_id'    => 0,
+                'wilaya_name'  => '',
+                'commune_id'   => 0,
+                'commune_name' => '',
+                'delivery'     => '',
+                'stopdesk_id'  => 0,
+                'stopdesk_name'=> '',
+                'fee'          => 0,
+            );
+        }
+        return array(
+            'wilaya_id'    => (int) $s->get('cca_wilaya_id'),
+            'wilaya_name'  => (string) $s->get('cca_wilaya_name'),
+            'commune_id'   => (int) $s->get('cca_commune_id'),
+            'commune_name' => (string) $s->get('cca_commune_name'),
+            'delivery'     => (string) $s->get('cca_delivery_type'),
+            'stopdesk_id'  => (int) $s->get('cca_stopdesk_id'),
+            'stopdesk_name'=> (string) $s->get('cca_stopdesk_name'),
+            'fee'          => (float) $s->get('cca_fee'),
+        );
+    }
+
     public function ajax_get_communes() {
         check_ajax_referer('cca_checkout','nonce');
         $wilaya_id = isset($_POST['wilaya_id']) ? absint($_POST['wilaya_id']) : 0;
@@ -316,19 +350,52 @@ class CCA_Checkout {
         $wilaya_id = isset($_POST['wilaya_id']) ? absint($_POST['wilaya_id']) : 0;
         $commune_id= isset($_POST['commune_id']) ? absint($_POST['commune_id']) : 0;
         if ( ! $wilaya_id ) wp_send_json_error( array('message'=> __( 'Wilaya invalide.', 'custom-checkout-algeria' )));
-        $args = array('wilaya_id'=>$wilaya_id,'page_size'=>1000);
-        if($commune_id) $args['commune_id']=$commune_id;
-        $result = CCA_API::get_centers($args);
-        if ( ! empty($result['success']) && empty($result['data']['data']) && $commune_id ) {
-            unset($args['commune_id']);
-            $result = CCA_API::get_centers($args);
+        // Fetch the whole wilaya once (one API call per wilaya per hour thanks to the
+        // transient) and let the browser filter per commune. Browsing 10 communes in a
+        // wilaya used to cost 10 Yalidine calls.
+        $result = CCA_API::get_centers( array('wilaya_id'=>$wilaya_id,'page_size'=>1000) );
+        if ( empty($result['success']) ) wp_send_json_error( array('message'=> $result['error'] ?? __( 'Erreur API.', 'custom-checkout-algeria' ) ));
+
+        $items = self::map_centers( $result );
+
+        // Only filterable client-side when every centre carries its commune.
+        $by_commune = ! empty( $items );
+        foreach ( $items as $c ) {
+            if ( empty( $c['commune_id'] ) ) { $by_commune = false; break; }
         }
-        if ( empty($result['success']) ) wp_send_json_error( array('message'=> $result['error'] ?? __( 'Erreur API.', 'custom-checkout-algeria' )));
-        $items=array();
-        $data = $result['data'];
-        $list = $data['data'] ?? $data;
-        if ( is_array($list) ) foreach($list as $c){ $items[] = array('id'=>(int)($c['center_id'] ?? $c['id'] ?? 0),'name'=>$c['name']??''); }
-        wp_send_json_success( array('centers'=>$items));
+
+        // Defensive fallback: no commune info in the payload, so ask the API directly.
+        if ( ! $by_commune && $commune_id ) {
+            $result = CCA_API::get_centers( array('wilaya_id'=>$wilaya_id,'page_size'=>1000,'commune_id'=>$commune_id) );
+            if ( empty($result['success']) ) wp_send_json_error( array('message'=> $result['error'] ?? __( 'Erreur API.', 'custom-checkout-algeria' ) ));
+            $items = self::map_centers( $result );
+        }
+
+        wp_send_json_success( array('centers'=>$items,'by_commune'=>$by_commune) );
+    }
+
+    /**
+     * Normalise a Yalidine `centers` payload, keeping address + commune so two
+     * desks in the same wilaya stay distinguishable in the list.
+     */
+    private static function map_centers( $result ) {
+        $items = array();
+        $data  = $result['data'] ?? array();
+        $list  = $data['data'] ?? $data;
+        if ( ! is_array($list) ) return $items;
+        foreach ( $list as $c ) {
+            if ( ! is_array($c) ) continue;
+            $id = (int) ( $c['center_id'] ?? $c['id'] ?? 0 );
+            if ( ! $id ) continue;
+            $items[] = array(
+                'id'           => $id,
+                'name'         => (string) ( $c['name'] ?? '' ),
+                'address'      => (string) ( $c['address'] ?? '' ),
+                'commune_id'   => (int) ( $c['commune_id'] ?? 0 ),
+                'commune_name' => (string) ( $c['commune_name'] ?? $c['commune'] ?? '' ),
+            );
+        }
+        return $items;
     }
 
     public function ajax_get_fee() {

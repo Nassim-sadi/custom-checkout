@@ -22,26 +22,31 @@
             <section class="cca-wizard__panel" data-panel="2">
                 <h2>Identifiants API</h2>
                 <p>Générez API ID/Token depuis le Developer Dashboard Yalidine.</p>
-                <p class="cca-field"><label for="cca_api_id">API ID</label><br><input type="text" id="cca_api_id" class="regular-text" /></p>
-                <p class="cca-field"><label for="cca_api_token">API Token</label><br><input type="password" id="cca_api_token" class="regular-text" /></p>
+                <p class="cca-field"><label for="cca_api_id">API ID</label><input type="text" id="cca_api_id" class="regular-text" autocomplete="off" /></p>
+                <p class="cca-field"><label for="cca_api_token">API Token</label><input type="password" id="cca_api_token" class="regular-text" autocomplete="off" /></p>
                 <p class="cca-wizard__feedback" data-feedback="2"></p>
                 <p><button type="button" class="button cca-wizard-prev">Retour</button> <button type="button" class="button button-primary cca-wizard-save-credentials">Tester et continuer</button></p>
             </section>
             <section class="cca-wizard__panel" data-panel="3">
                 <h2>Wilaya d’expédition</h2>
                 <p>Choisissez la wilaya depuis laquelle vous expédiez.</p>
-                <p><label for="cca_from_wilaya">Wilaya</label><br><select id="cca_from_wilaya" class="regular-text"><option value="">— Sélectionner —</option></select></p>
+                <p class="cca-field"><label for="cca_from_wilaya">Wilaya</label><select id="cca_from_wilaya" class="regular-text"><option value="">— Sélectionner —</option></select></p>
                 <p class="cca-wizard__feedback" data-feedback="3"></p>
                 <p><button type="button" class="button cca-wizard-prev">Retour</button> <button type="button" class="button button-primary cca-wizard-save-sender">Continuer</button></p>
             </section>
             <section class="cca-wizard__panel" data-panel="4">
                 <h2>Options</h2>
-                <label><input type="checkbox" id="cca_enable_home" checked /> Domicile</label><br>
-                <label><input type="checkbox" id="cca_enable_stopdesk" checked /> Stop desk (avec choix du centre par commune)</label><br>
-                <label><input type="checkbox" id="cca_freeshipping" checked /> Freeshipping (frais payés par expéditeur)</label><br>
-                <label><input type="checkbox" id="cca_do_insurance" /> Assurance</label>
+                <label class="cca-check"><input type="checkbox" id="cca_enable_home" checked /><span>Domicile</span></label>
+                <label class="cca-check"><input type="checkbox" id="cca_enable_stopdesk" checked /><span>Stop desk (avec choix du centre par commune)</span></label>
+                <label class="cca-check"><input type="checkbox" id="cca_freeshipping" checked /><span>Freeshipping (frais payés par expéditeur)</span></label>
+                <label class="cca-check"><input type="checkbox" id="cca_do_insurance" /><span>Assurance</span></label>
                 <p><strong>Dimensions par défaut</strong> (si produit sans poids/dims)</p>
-                <p>L <input type="number" id="cca_default_length" value="10" min="0" class="small-text" /> l <input type="number" id="cca_default_width" value="10" min="0" class="small-text" /> H <input type="number" id="cca_default_height" value="10" min="0" class="small-text" /> Poids <input type="number" id="cca_default_weight" value="1" min="0" step="0.1" class="small-text" /> kg</p>
+                <div class="cca-dims">
+                    <div><label for="cca_default_length">L (cm)</label><input type="number" id="cca_default_length" value="10" min="0" class="small-text" /></div>
+                    <div><label for="cca_default_width">l (cm)</label><input type="number" id="cca_default_width" value="10" min="0" class="small-text" /></div>
+                    <div><label for="cca_default_height">H (cm)</label><input type="number" id="cca_default_height" value="10" min="0" class="small-text" /></div>
+                    <div><label for="cca_default_weight">Poids (kg)</label><input type="number" id="cca_default_weight" value="1" min="0" step="0.1" class="small-text" /></div>
+                </div>
                 <p class="cca-wizard__feedback" data-feedback="4"></p>
                 <p><button type="button" class="button cca-wizard-prev">Retour</button> <button type="button" class="button button-primary cca-wizard-save-defaults">Continuer</button></p>
             </section>

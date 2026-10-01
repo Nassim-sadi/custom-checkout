@@ -166,17 +166,29 @@ class CCA_API {
 
     public static function clear_cache() {
         global $wpdb;
-        $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_cca_wilayas%'" );
-        $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_cca_communes%'" );
-        $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_cca_centers%'" );
-        $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_cca_yali_route%'" );
-        $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_cca_wilayas'" );
-        $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_cca_wilayas%'" );
-        $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_cca_communes%'" );
-        $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_cca_centers%'" );
-        $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_cca_yali_route%'" );
-        $wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_timeout_cca_wilayas'" );
-        delete_transient('cca_wilayas');
+        // Delete via SQL (many md5-suffixed keys) AND drop the matching object-cache
+        // entries. Without wp_cache_delete the values stay readable for the rest of
+        // the request, and with a persistent cache (Redis/Memcached) the raw SQL
+        // would not clear them at all.
+        $prefixes = array( 'cca_wilayas', 'cca_communes', 'cca_centers', 'cca_yali_route' );
+        foreach ( $prefixes as $prefix ) {
+            foreach ( array( '_transient_' . $prefix, '_transient_timeout_' . $prefix ) as $like ) {
+                $pattern = $wpdb->esc_like( $like ) . '%';
+                $names   = $wpdb->get_col( $wpdb->prepare( "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s", $pattern ) );
+                if ( $names ) {
+                    foreach ( $names as $name ) {
+                        wp_cache_delete( $name, 'options' );
+                    }
+                    $wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name LIKE %s", $pattern ) );
+                }
+                wp_cache_delete( $like, 'options' );
+            }
+        }
+        // Handles persistent object caches, where the rows above are not authoritative.
+        if ( function_exists( 'wp_cache_flush_group' ) ) {
+            wp_cache_flush_group( 'options' );
+        }
+        delete_transient( 'cca_wilayas' );
     }
 
     public static function log( $message, $level = 'info' ) {
