@@ -36,19 +36,41 @@ jobs:
         run: |
           # The folder name must match the installed plugin folder so a zip
           # install does not create a second copy next to an existing one.
+          # --prefix is applied once, so a nested copy is impossible by
+          # construction.
+          #
+          # git archive (not rsync) so exclusions come from .gitattributes
+          # export-ignore, which is the single source of truth. The hand-written
+          # rsync --exclude list that was here instead never consulted
+          # export-ignore, so CHANGELOG.md shipped from v1.2.0 onward. Files
+          # generated in the workspace (release-notes.md) are untracked, so
+          # git archive cannot pick them up either.
           DIR="custom-checkout-algeria"
-          # Stage OUTSIDE the checkout. Creating $DIR inside the source tree and
-          # then rsyncing ./ into it copies the folder into itself, which shipped
-          # a nested custom-checkout-algeria/custom-checkout-algeria/ duplicate in
-          # v1.2.0 and v1.2.1.
-          STAGE="$(mktemp -d)"
-          rsync -a \
-            --exclude='.git' --exclude='.gitignore' --exclude='.gitattributes' \
-            --exclude='.github' --exclude='.agents' --exclude='docs' \
-            --exclude='release-notes.md' --exclude='*.zip' \
-            --exclude='*.log' --exclude='node_modules' \
-            ./ "$STAGE/$DIR/"
-          ( cd "$STAGE" && zip -r9 "$GITHUB_WORKSPACE/${DIR}.zip" "$DIR" )
+          git archive --format=zip --prefix="${DIR}/" -o "${DIR}.zip" HEAD
+
+      - name: Verify zip layout
+        run: |
+          # The published zips in v1.2.0/v1.2.1 shipped a nested copy of the
+          # plugin, so the layout is asserted rather than assumed.
+          DIR="custom-checkout-algeria"
+          LIST="$(unzip -Z1 "${DIR}.zip")"
+          if ! echo "$LIST" | grep -qx "${DIR}/custom-checkout.php"; then
+            echo "::error::${DIR}/custom-checkout.php missing from the archive"
+            exit 1
+          fi
+          for bad in \
+            "^${DIR}/${DIR}/" \
+            "\.zip$" \
+            "release-notes\.md" \
+            "^${DIR}/(\.github|tests|node_modules|docs)/" \
+            "^${DIR}/(package\.json|CHANGELOG\.md|\.gitignore|\.gitattributes)$" \
+          ; do
+            if echo "$LIST" | grep -q "$bad"; then
+              echo "::error::archive should not contain: ${bad}"
+              exit 1
+            fi
+          done
+          echo "Verified $(echo "$LIST" | wc -l | tr -d ' ') entries, layout clean."
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
